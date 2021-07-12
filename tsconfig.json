@@ -1,0 +1,9 @@
+{
+  "extends": "@indriver/ts-config",
+  "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"],
+  "compilerOptions": {
+    "outDir": "build",
+    "typeRoots": ["./node_modules/@types", "./types"]
+  },
+  "exclude": ["node_modules"]
+}
