@@ -1,0 +1,19 @@
+name: BeforeMaster
+on:
+  pull_request:
+    branches:
+    - master
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+            - name: Use Node.js
+              uses: actions/setup-node@v1
+              with:
+                  node-version: '14.x'
+            - name: Add auth token for npm packages
+              run: echo -e "//npm.pkg.github.com/:_authToken=${{ secrets.TOKEN }}\n@indriver:registry=https://npm.pkg.github.com" > .npmrc
+            - run: npm ci
+            - run: npm run build
+            - run: npm run lint
