@@ -1,0 +1,18 @@
+FROM node:14-alpine as builder
+ARG GITHUB_ACCESS_TOKEN
+ENV GITHUB_ACCESS_TOKEN=$GITHUB_ACCESS_TOKEN
+RUN apk add --update libtool automake autoconf nasm gcc g++ make libffi-dev openssl-dev libjpeg jpeg-dev libpng-dev giflib-dev 
+WORKDIR /usr/app
+COPY ./package.json package-lock.json ./
+RUN echo -e "//npm.pkg.github.com/:_authToken=${GITHUB_ACCESS_TOKEN}\n@indriver:registry=https://npm.pkg.github.com" > .npmrc
+RUN npm ci
+COPY . .
+RUN rm -rf .npmrc
+RUN npm run build
+
+FROM fholzer/nginx-brotli
+COPY configs/docker/nginx.conf /etc/nginx/nginx.conf
+RUN rm -rf /usr/share/nginx/html/*
+COPY --from=builder usr/app/build /usr/share/nginx/html
+
+ENTRYPOINT ["nginx", "-g", "daemon off;"]
